@@ -9,10 +9,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import java.util.ArrayList;
 import java.util.List;
 
-// Total = 19
-// 9 -> Alireza
-// 10 -> Mohammad
-
 public class DustListenerImp implements DustListener {
     private int indentLevel = 0;
     private boolean isClass = false;
