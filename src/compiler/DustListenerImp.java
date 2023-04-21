@@ -17,6 +17,9 @@ public class DustListenerImp implements DustListener {
     private int indentLevel = 0;
     private boolean isClass = false;
     private boolean isConstructor = false;
+
+    ArrayList<String> parameterOfCons = new ArrayList<>();
+    ArrayList<String> parameterOfMethods = new ArrayList<>();
     private String indentSpace() {
         String tab = " ".repeat(4);
         return tab.repeat(indentLevel);
@@ -125,7 +128,11 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void exitMethodDec(DustParser.MethodDecContext ctx) {
-        // To Do
+        indentLevel -= 1;
+        // create a new array list to remove all the parameter list before exiting.
+        parameterOfMethods = new ArrayList<>();
+        if (isClass)
+            System.out.println(indentSpace() + "}" + "\n");
     }
 
     @Override
@@ -162,6 +169,8 @@ public class DustListenerImp implements DustListener {
     public void exitConstructor(DustParser.ConstructorContext ctx) {
         isConstructor = false;
         indentLevel -= 1;
+        // create a new array list to remove all the parameter list before exiting.
+        parameterOfCons = new ArrayList<>();
         if (isClass)    System.out.println(indentSpace() + "}" + "\n");
     }
 
