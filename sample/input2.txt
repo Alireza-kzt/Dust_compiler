@@ -1,0 +1,34 @@
+import Boo
+import Foo
+class Car(Boo, Foo){
+    Engine engine
+    Speed speed
+    Wheels[4] wheels
+    Doors[2] doors
+    int fuelLevel
+    bool isTurnedOn
+    bool isBelt
+    bool isRunning
+    def Car(Engine eng, int fl){
+        self.fuelLevel = fl
+        Engine pride = eng
+    }
+    def Speed drive(Speed sp, bool isTurnedOn){
+        Speed speed
+        s = s + sp
+        return s
+    }
+    def bool start(){
+        engin petrol
+        self.isTurnedOn = true
+        return petrol
+    }
+    def void stop(){
+        self.isRunning = false
+        self.engine.stop()
+    }
+    def void refuel(int amount){
+        self.fuelLevel += amount
+        print("Refueled " + amount + " gallons.")
+    }
+}
