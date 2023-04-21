@@ -20,6 +20,7 @@ public class DustListenerImp implements DustListener {
 
     ArrayList<String> parameterOfCons = new ArrayList<>();
     ArrayList<String> parameterOfMethods = new ArrayList<>();
+
     private String indentSpace() {
         String tab = " ".repeat(4);
         return tab.repeat(indentLevel);
@@ -82,15 +83,21 @@ public class DustListenerImp implements DustListener {
     @Override
     public void enterVarDec(DustParser.VarDecContext ctx) {
         String varName = ctx.ID().getText();
-        String varType;
+        String varType = ctx.TYPE() != null ? ctx.TYPE().getText(): ctx.CLASSNAME().getText();
+        String field = varType + " " + varName;
+        List<String> assigned = new ArrayList<>();
+        boolean isAssigned = false;
 
-        if (ctx.TYPE() != null) {
-            varType = ctx.TYPE().getText();
-        } else {
-            varType = ctx.CLASSNAME().getText();
+        assigned.addAll(parameterOfCons);
+        assigned.addAll(parameterOfMethods);
+
+        for (String param: assigned) {
+            if(param.equals(field)){
+                isAssigned = true;
+                break;
+            }
         }
-
-        if (isClass & !isConstructor) {
+        if(!isAssigned) {
             System.out.printf("%sfield: %s/ type= %s\n", indentSpace(), varName, varType);
         }
     }
@@ -111,8 +118,8 @@ public class DustListenerImp implements DustListener {
             varType = ctx.CLASSNAME().getText();
         }
 
-        if (isClass) {
-            System.out.printf("%sfield: %s/ type= %s\n", indentSpace(), varName, varType);
+        if (isClass & !isConstructor) {
+            System.out.printf("%sfield: %s/ type= List<%s>\n", indentSpace(), varName, varType);
         }
     }
 
