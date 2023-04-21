@@ -47,6 +47,8 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterClassDef(DustParser.ClassDefContext ctx) {
+        isClass = true;
+
         String className = ctx.CLASSNAME(0).getText();
 
         List<String> parents = new ArrayList<>();
@@ -59,6 +61,7 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void exitClassDef(DustParser.ClassDefContext ctx) {
+        isClass = false;
         indentLevel--;
         System.out.printf("%s}\n", indentSpace());
     }
@@ -75,7 +78,18 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterVarDec(DustParser.VarDecContext ctx) {
-        // To Do
+        String varName = ctx.ID().getText();
+        String varType;
+
+        if (ctx.TYPE() != null) {
+            varType = ctx.TYPE().getText();
+        } else {
+            varType = ctx.CLASSNAME().getText();
+        }
+
+        if (isClass) {
+            System.out.printf("%sfield: %s/ type= %s\n", indentSpace(), varName, varType);
+        }
     }
 
     @Override
@@ -85,7 +99,7 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterArrayDec(DustParser.ArrayDecContext ctx) {
-        // To Do
+
     }
 
     @Override
