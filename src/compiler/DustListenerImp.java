@@ -5,7 +5,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-public class Listener implements DustListener {
+public class DustListenerImp implements DustListener {
     @Override
     public void enterProgram(DustParser.ProgramContext ctx) {
 
