@@ -6,13 +6,15 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.util.ArrayList;
+
 // Total = 19
 // 9 -> Alireza
 // 10 -> Mohammad
 
 public class DustListenerImp implements DustListener {
     private int indentLevel = 0;
-
+    private boolean inConstructor = false;
     private String indentSpace() {
         String tab = " ".repeat(4);
         return tab.repeat(indentLevel);
@@ -93,7 +95,32 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterConstructor(DustParser.ConstructorContext ctx) {
-        // To Do
+        inConstructor = true;
+        ArrayList<String> listOfParams = new ArrayList<>();
+
+        for (DustParser.ParameterContext param: ctx.parameter()) {
+            for (DustParser.VarDecContext var: param.varDec()) {
+                String name = "";
+
+                if (var.CLASSNAME() == null)
+                    name = var.TYPE().toString();
+                else
+                    name = var.CLASSNAME().toString();
+
+                if (!name.equals("")
+                        && var.ID() != null)
+                {
+                    String parameter = name + " " + var.ID().toString();
+                    listOfParams.add(parameter);
+                }
+            }
+        }
+
+        String listOfParams_str = String.join(", ", listOfParams);
+        System.out.print(indentSpace() + "class constructor: " + ctx.CLASSNAME().getText() + "{\n");
+
+        indentLevel += 1;
+        System.out.print(indentSpace() + "parameter list: [" + listOfParams_str + "]\n");
     }
 
     @Override
