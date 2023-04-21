@@ -123,22 +123,21 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterMethodDec(DustParser.MethodDecContext ctx) {
-        // To Do
-    }
+        String typeOfReturn;
+        if (ctx.TYPE() != null)
+            typeOfReturn = ctx.TYPE().toString();
+        else
+            typeOfReturn = "";
 
-    @Override
-    public void exitMethodDec(DustParser.MethodDecContext ctx) {
-        indentLevel -= 1;
-        // create a new array list to remove all the parameter list before exiting.
-        parameterOfMethods = new ArrayList<>();
-        if (isClass)
-            System.out.println(indentSpace() + "}" + "\n");
-    }
+        if (ctx.TYPE() == null && ctx.CLASSNAME() != null)
+            typeOfReturn = ctx.CLASSNAME().toString();
 
-    @Override
-    public void enterConstructor(DustParser.ConstructorContext ctx) {
-        isConstructor = true;
-        ArrayList<String> listOfParams = new ArrayList<>();
+        if (isClass) {
+            if (!typeOfReturn.equals(""))
+                System.out.println(indentSpace() + "class method: " + ctx.ID().getText() + "/ return type: " + typeOfReturn + "{\n");
+            else
+                System.out.println(indentSpace() + "class method: " + ctx.ID().getText() + "{\n");
+        }
 
         for (DustParser.ParameterContext param: ctx.parameter()) {
             for (DustParser.VarDecContext var: param.varDec()) {
@@ -153,12 +152,48 @@ public class DustListenerImp implements DustListener {
                         && var.ID() != null)
                 {
                     String parameter = name + " " + var.ID().toString();
-                    listOfParams.add(parameter);
+                    parameterOfMethods.add(parameter);
+                }
+            }
+        }
+        String listOfParams_str = String.join(", ", parameterOfMethods);
+        indentLevel += 1;
+        if (!listOfParams_str.equals(""))
+            System.out.println(indentSpace() + "parameter list: [" + listOfParams_str + "]\n");
+    }
+
+    @Override
+    public void exitMethodDec(DustParser.MethodDecContext ctx) {
+        indentLevel -= 1;
+        // create a new array list to remove all the parameter list before exiting.
+        parameterOfMethods = new ArrayList<>();
+        if (isClass)
+            System.out.println(indentSpace() + "}" + "\n");
+    }
+
+    @Override
+    public void enterConstructor(DustParser.ConstructorContext ctx) {
+        isConstructor = true;
+
+        for (DustParser.ParameterContext param: ctx.parameter()) {
+            for (DustParser.VarDecContext var: param.varDec()) {
+                String name;
+
+                if (var.CLASSNAME() == null)
+                    name = var.TYPE().toString();
+                else
+                    name = var.CLASSNAME().toString();
+
+                if (!name.equals("")
+                        && var.ID() != null)
+                {
+                    String parameter = name + " " + var.ID().toString();
+                    parameterOfCons.add(parameter);
                 }
             }
         }
 
-        String listOfParams_str = String.join(", ", listOfParams);
+        String listOfParams_str = String.join(", ", parameterOfCons);
         System.out.print(indentSpace() + "class constructor: " + ctx.CLASSNAME().getText() + "{\n");
 
         indentLevel += 1;
