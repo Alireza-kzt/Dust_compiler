@@ -5,20 +5,24 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+// Total = 19
+// 9 -> Alireza
+// 10 -> Mohammad
+
 public class DustListenerImp implements DustListener {
     @Override
     public void enterProgram(DustParser.ProgramContext ctx) {
-
+        // To Do
     }
 
     @Override
     public void exitProgram(DustParser.ProgramContext ctx) {
-
+        // To Do
     }
 
     @Override
     public void enterImportclass(DustParser.ImportclassContext ctx) {
-
+        // To Do
     }
 
     @Override
@@ -28,12 +32,12 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterClassDef(DustParser.ClassDefContext ctx) {
-
+        // To Do
     }
 
     @Override
     public void exitClassDef(DustParser.ClassDefContext ctx) {
-
+        // To Do
     }
 
     @Override
@@ -48,7 +52,7 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterVarDec(DustParser.VarDecContext ctx) {
-
+        // To Do
     }
 
     @Override
@@ -58,7 +62,7 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterArrayDec(DustParser.ArrayDecContext ctx) {
-
+        // To Do
     }
 
     @Override
@@ -68,22 +72,22 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterMethodDec(DustParser.MethodDecContext ctx) {
-
+        // To Do
     }
 
     @Override
     public void exitMethodDec(DustParser.MethodDecContext ctx) {
-
+        // To Do
     }
 
     @Override
     public void enterConstructor(DustParser.ConstructorContext ctx) {
-
+        // To Do
     }
 
     @Override
     public void exitConstructor(DustParser.ConstructorContext ctx) {
-
+        // To Do
     }
 
     @Override
@@ -138,22 +142,23 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterIf_statment(DustParser.If_statmentContext ctx) {
-
+        // To Do
     }
 
     @Override
     public void exitIf_statment(DustParser.If_statmentContext ctx) {
-
+        // To Do
     }
 
     @Override
     public void enterWhile_statment(DustParser.While_statmentContext ctx) {
-
+        // To Do 
+        // اسم تابع تغییر داده شود
     }
 
     @Override
     public void exitWhile_statment(DustParser.While_statmentContext ctx) {
-
+        // To Do
     }
 
     @Override
@@ -178,22 +183,23 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterFor_statment(DustParser.For_statmentContext ctx) {
-
+        // To Do
+        // نیاز به بررسی الزامی بودن یا خیر
     }
 
     @Override
     public void exitFor_statment(DustParser.For_statmentContext ctx) {
-
+        // To Do
     }
 
     @Override
     public void enterMethod_call(DustParser.Method_callContext ctx) {
-
+        // To Do
     }
 
     @Override
     public void exitMethod_call(DustParser.Method_callContext ctx) {
-
+        // To Do
     }
 
     @Override
