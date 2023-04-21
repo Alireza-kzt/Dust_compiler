@@ -87,7 +87,7 @@ public class DustListenerImp implements DustListener {
             varType = ctx.CLASSNAME().getText();
         }
 
-        if (isClass) {
+        if (isClass & !isConstructor) {
             System.out.printf("%sfield: %s/ type= %s\n", indentSpace(), varName, varType);
         }
     }
@@ -99,7 +99,18 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterArrayDec(DustParser.ArrayDecContext ctx) {
+        String varName = ctx.ID().getText();
+        String varType;
 
+        if (ctx.TYPE() != null) {
+            varType = ctx.TYPE().getText();
+        } else {
+            varType = ctx.CLASSNAME().getText();
+        }
+
+        if (isClass) {
+            System.out.printf("%sfield: %s/ type= %s\n", indentSpace(), varName, varType);
+        }
     }
 
     @Override
