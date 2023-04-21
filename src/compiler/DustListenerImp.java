@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
+import java.util.List;
 
 // Total = 19
 // 9 -> Alireza
@@ -45,12 +46,20 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterClassDef(DustParser.ClassDefContext ctx) {
-        // To Do
+        String className = ctx.CLASSNAME(0).getText();
+
+        List<String> parents = new ArrayList<String>();
+        for (int i = 1; i < ctx.CLASSNAME().size(); i++) parents.add(ctx.CLASSNAME(i).getText());
+
+        System.out.printf("%sclass: %s/ class parents: %s, {\n", indentSpace(), className, parents);
+
+        indentLevel++;
     }
 
     @Override
     public void exitClassDef(DustParser.ClassDefContext ctx) {
-        // To Do
+        indentLevel--;
+        System.out.printf("%s}\n", indentSpace());
     }
 
     @Override
