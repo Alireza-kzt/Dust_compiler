@@ -1,4 +1,5 @@
 package compiler;
+
 import gen.DustListener;
 import gen.DustParser;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -10,19 +11,29 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 // 10 -> Mohammad
 
 public class DustListenerImp implements DustListener {
+    private int indentLevel = 0;
+
+    private String indentSpace() {
+        String tab = " ".repeat(4);
+        return tab.repeat(indentLevel);
+    }
+
     @Override
     public void enterProgram(DustParser.ProgramContext ctx) {
-        // To Do
+        System.out.println("program start{");
+        indentLevel++;
     }
 
     @Override
     public void exitProgram(DustParser.ProgramContext ctx) {
-        // To Do
+        indentLevel--;
+        System.out.println("}");
     }
 
     @Override
     public void enterImportclass(DustParser.ImportclassContext ctx) {
-        // To Do
+        String className = ctx.CLASSNAME().getText();
+        System.out.printf("%simport class: %s\n", indentSpace(), className);
     }
 
     @Override
