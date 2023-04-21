@@ -15,7 +15,8 @@ import java.util.List;
 
 public class DustListenerImp implements DustListener {
     private int indentLevel = 0;
-    private boolean inConstructor = false;
+    private boolean isClass = false;
+    private boolean isConstructor = false;
     private String indentSpace() {
         String tab = " ".repeat(4);
         return tab.repeat(indentLevel);
@@ -48,7 +49,7 @@ public class DustListenerImp implements DustListener {
     public void enterClassDef(DustParser.ClassDefContext ctx) {
         String className = ctx.CLASSNAME(0).getText();
 
-        List<String> parents = new ArrayList<String>();
+        List<String> parents = new ArrayList<>();
         for (int i = 1; i < ctx.CLASSNAME().size(); i++) parents.add(ctx.CLASSNAME(i).getText());
 
         System.out.printf("%sclass: %s/ class parents: %s, {\n", indentSpace(), className, parents);
@@ -104,12 +105,12 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void enterConstructor(DustParser.ConstructorContext ctx) {
-        inConstructor = true;
+        isConstructor = true;
         ArrayList<String> listOfParams = new ArrayList<>();
 
         for (DustParser.ParameterContext param: ctx.parameter()) {
             for (DustParser.VarDecContext var: param.varDec()) {
-                String name = "";
+                String name;
 
                 if (var.CLASSNAME() == null)
                     name = var.TYPE().toString();
@@ -134,7 +135,9 @@ public class DustListenerImp implements DustListener {
 
     @Override
     public void exitConstructor(DustParser.ConstructorContext ctx) {
-        // To Do
+        isConstructor = false;
+        indentLevel -= 1;
+        if (isClass)    System.out.println(indentSpace() + "}" + "\n");
     }
 
     @Override
