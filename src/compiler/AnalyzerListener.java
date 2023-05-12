@@ -11,7 +11,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class AnalyzerListener implements DustListener {
     IScope scope;
-    private boolean isInClass = false;
 
     public AnalyzerListener(GlobalScope globalScope) {
         this.scope = globalScope;
@@ -39,7 +38,6 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterClassDef(DustParser.ClassDefContext ctx) {
-        isInClass = true;
         String className = ctx.CLASSNAME(0).getText();
         int classLine = ctx.start.getLine();
 
@@ -48,7 +46,6 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void exitClassDef(DustParser.ClassDefContext ctx) {
-        isInClass = false;
     }
 
     @Override
