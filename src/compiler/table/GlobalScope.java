@@ -2,7 +2,7 @@ package compiler.table;
 
 public class GlobalScope extends IScope {
     public GlobalScope() {
-        super("Program", 1);
+        super("Program", 0);
     }
 
     @Override
