@@ -3,6 +3,7 @@ package compiler;
 import compiler.table.ClassScope;
 import compiler.table.GlobalScope;
 import compiler.table.IScope;
+import compiler.table.MethodScope;
 import gen.DustListener;
 import gen.DustParser;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -13,10 +14,15 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class AnalyzerListener implements DustListener {
     IScope scope;
     private boolean isInClass = false;
+    private int indentLevel = 0;
+
+    private String indentSpace() {
+        String tab = " ".repeat(4);
+        return tab.repeat(indentLevel);
+    }
     public AnalyzerListener(GlobalScope globalScope) {
         this.scope = globalScope;
     }
-
 
     @Override
     public void enterProgram(DustParser.ProgramContext ctx) {
