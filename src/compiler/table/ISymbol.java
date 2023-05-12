@@ -1,5 +1,6 @@
 package compiler.table;
 
-public interface ISymbol {
-    public void print();
+public abstract class ISymbol {
+    public ISymbol parent;
+    public abstract void print();
 }

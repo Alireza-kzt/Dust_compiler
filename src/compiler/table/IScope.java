@@ -2,9 +2,9 @@ package compiler.table;
 
 import java.util.Stack;
 
-public abstract class IScope implements ISymbol {
-    public IScope parent;
-    public Stack<IScope> scopes;
+public abstract class IScope extends ISymbol {
+
+    public Stack<ISymbol> scopes;
     public String name;
     public int line;
 
@@ -20,7 +20,12 @@ public abstract class IScope implements ISymbol {
         return scope;
     }
 
-    public IScope pop() {
+    public void add(ISymbol scope) {
+        scope.parent = this;
+        scopes.add(scope);
+    }
+
+    public ISymbol pop() {
         return scopes.pop();
     }
 

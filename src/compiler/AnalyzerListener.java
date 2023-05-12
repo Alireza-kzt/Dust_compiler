@@ -1,8 +1,6 @@
 package compiler;
 
-import compiler.table.ClassScope;
-import compiler.table.GlobalScope;
-import compiler.table.IScope;
+import compiler.table.*;
 import gen.DustListener;
 import gen.DustParser;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -13,6 +11,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class AnalyzerListener implements DustListener {
     IScope scope;
     private boolean isInClass = false;
+
     public AnalyzerListener(GlobalScope globalScope) {
         this.scope = globalScope;
     }
@@ -94,7 +93,16 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterConstructor(DustParser.ConstructorContext ctx) {
+        String methodName = ctx.CLASSNAME().getText();
+        int classLine = ctx.start.getLine();
 
+        scope = scope.add(new MethodScope(methodName, classLine));
+
+        for (DustParser.ParameterContext x : ctx.parameter()) {
+            for (DustParser.VarDecContext y : x.varDec()) {
+                scope.add(new Symbol(y.toString(), y.getText()));
+            }
+        }
     }
 
     @Override

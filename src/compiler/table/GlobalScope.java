@@ -8,7 +8,7 @@ public class GlobalScope extends IScope {
     @Override
     public void print() {
         System.out.println("------ " + name + " : " + line + " ------");
-        for (IScope scope : scopes) scope.print();
+        for (ISymbol scope : scopes) scope.print();
         System.out.println("------ End of Project ------");
     }
 }
