@@ -1,5 +1,6 @@
 package compiler;
 
+import compiler.table.ClassScope;
 import compiler.table.GlobalScope;
 import compiler.table.IScope;
 import gen.DustListener;
@@ -8,12 +9,14 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+
 public class AnalyzerListener implements DustListener {
     IScope scope;
 
     public AnalyzerListener(GlobalScope globalScope) {
         this.scope = globalScope;
     }
+
 
     @Override
     public void enterProgram(DustParser.ProgramContext ctx) {
@@ -37,7 +40,8 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterClassDef(DustParser.ClassDefContext ctx) {
-
+        String className = ctx.CLASSNAME(0).getText();
+        scope.add(new ClassScope(className, 1));
     }
 
     @Override
