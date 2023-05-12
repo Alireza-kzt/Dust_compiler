@@ -4,8 +4,8 @@ import java.util.Stack;
 
 public abstract class IScope implements ISymbol {
     public Stack<IScope> scopes;
-    String name;
-    int line;
+    public String name;
+    public int line;
 
     public IScope(String name, int line) {
         this.name = name;
@@ -13,8 +13,9 @@ public abstract class IScope implements ISymbol {
         this.scopes = new Stack();
     }
 
-    public void add(IScope scope) {
+    public IScope add(IScope scope) {
         scopes.add(scope);
+        return scope;
     }
 
     public IScope pop() {

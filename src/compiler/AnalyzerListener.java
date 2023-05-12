@@ -20,7 +20,7 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterProgram(DustParser.ProgramContext ctx) {
-
+        scope.line = ctx.start.getLine();
     }
 
     @Override
@@ -41,7 +41,9 @@ public class AnalyzerListener implements DustListener {
     @Override
     public void enterClassDef(DustParser.ClassDefContext ctx) {
         String className = ctx.CLASSNAME(0).getText();
-        scope.add(new ClassScope(className, 1));
+        int classLine = ctx.start.getLine();
+
+        scope = scope.add(new ClassScope(className, classLine));
     }
 
     @Override

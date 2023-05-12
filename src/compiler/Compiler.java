@@ -21,7 +21,7 @@ public class Compiler {
         parser.setBuildParseTree(true);
         var tree = parser.program();
         var walker = new ParseTreeWalker();
-        GlobalScope globalScope = new GlobalScope("", 1);
+        GlobalScope globalScope = new GlobalScope();
         var listener = new AnalyzerListener(globalScope);
         walker.walk(listener, tree);
         globalScope.print();

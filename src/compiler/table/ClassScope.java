@@ -9,7 +9,8 @@ public class ClassScope extends IScope {
 
     @Override
     public void print() {
-        System.out.println("------" + name + " : " + line + "------");
+        System.out.println("------ " + name + " : " + line + " ------");
         for (IScope scope : scopes) scope.print();
+        System.out.println("------ End of Class ------");
     }
 }
