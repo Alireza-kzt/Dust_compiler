@@ -1,5 +1,6 @@
 package compiler;
 
+import compiler.table.GlobalScope;
 import gen.DustLexer;
 import gen.DustParser;
 import org.antlr.v4.runtime.CharStreams;
@@ -8,12 +9,11 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 
 import java.io.IOException;
-import java.nio.file.Paths;
 
 public class Compiler {
     public static void main(String[] args) throws IOException {
-//        var path = "C:\\Users\\user\\IdeaProjects\\Dust\\sample\\input1.txt";
-        var path = "/home/mohammad_bq/IdeaProjects/Dust_compiler/sample/input2.txt";
+        var path = "C:\\Users\\user\\IdeaProjects\\Dust\\sample\\input1.txt";
+//        var path = "/home/mohammad_bq/IdeaProjects/Dust_compiler/sample/input2.txt";
         var stream = CharStreams.fromFileName(path);
         var lexer = new DustLexer(stream);
         var tokens = new CommonTokenStream(lexer);
@@ -21,7 +21,9 @@ public class Compiler {
         parser.setBuildParseTree(true);
         var tree = parser.program();
         var walker = new ParseTreeWalker();
-        var listener = new DustListenerImp();
+        GlobalScope globalScope = new GlobalScope();
+        var listener = new AnalyzerListener(globalScope);
         walker.walk(listener, tree);
+        globalScope.print();
     }
 }
