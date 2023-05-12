@@ -48,7 +48,7 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void exitClassDef(DustParser.ClassDefContext ctx) {
-
+        scope = scope.parent;
     }
 
     @Override
