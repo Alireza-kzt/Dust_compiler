@@ -13,13 +13,6 @@ public class AnalyzerListener implements DustListener {
     IScope scope;
     private boolean isInClass = false;
 
-    private int indentLevel = 0;
-
-    private String indentSpace() {
-        String tab = " ".repeat(4);
-        return tab.repeat(indentLevel);
-    }
-
     public AnalyzerListener(GlobalScope globalScope) {
         this.scope = globalScope;
     }
@@ -90,7 +83,16 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterMethodDec(DustParser.MethodDecContext ctx) {
+        int lineNumber = ctx.start.getLine();
+        String methodName = ctx.ID().getText();
 
+        scope = scope.add(new MethodScope(methodName, lineNumber));
+
+        for (DustParser.ParameterContext x : ctx.parameter()) {
+            for (DustParser.VarDecContext y : x.varDec()) {
+                scope.add(new Symbol(y.toString(), y.getText()));
+            }
+        }
     }
 
     @Override
