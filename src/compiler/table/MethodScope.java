@@ -7,6 +7,7 @@ public class MethodScope extends IScope {
 
     @Override
     public void print() {
-
+        System.out.println("Method_" + name);
+        for (ISymbol scope : scopes) scope.print();
     }
 }

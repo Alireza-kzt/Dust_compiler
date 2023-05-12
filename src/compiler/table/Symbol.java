@@ -11,6 +11,6 @@ public class Symbol extends ISymbol {
 
     @Override
     public void print() {
-
+        System.out.println("Field_" + key + " : " + value);
     }
 }

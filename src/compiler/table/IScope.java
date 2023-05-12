@@ -3,7 +3,7 @@ package compiler.table;
 import java.util.Stack;
 
 public abstract class IScope extends ISymbol {
-
+    public IScope parent;
     public Stack<ISymbol> scopes;
     public String name;
     public int line;
@@ -21,7 +21,6 @@ public abstract class IScope extends ISymbol {
     }
 
     public void add(ISymbol scope) {
-        scope.parent = this;
         scopes.add(scope);
     }
 

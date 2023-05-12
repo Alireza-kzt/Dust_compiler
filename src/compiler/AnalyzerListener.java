@@ -19,6 +19,7 @@ public class AnalyzerListener implements DustListener {
         String tab = " ".repeat(4);
         return tab.repeat(indentLevel);
     }
+
     public AnalyzerListener(GlobalScope globalScope) {
         this.scope = globalScope;
     }
@@ -106,14 +107,14 @@ public class AnalyzerListener implements DustListener {
 
         for (DustParser.ParameterContext x : ctx.parameter()) {
             for (DustParser.VarDecContext y : x.varDec()) {
-                scope.add(new Symbol(y.toString(), y.getText()));
+                scope.add(new Symbol(y.getText(), y.getText())); // TODO key, value
             }
         }
     }
 
     @Override
     public void exitConstructor(DustParser.ConstructorContext ctx) {
-
+        scope = scope.parent;
     }
 
     @Override
