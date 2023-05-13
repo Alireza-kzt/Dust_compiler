@@ -48,6 +48,7 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void exitClassDef(DustParser.ClassDefContext ctx) {
+        scope = scope.parent;
     }
 
     @Override
@@ -82,7 +83,7 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void exitArrayDec(DustParser.ArrayDecContext ctx) {
-
+        scope = scope.parent;
     }
 
     @Override
@@ -190,7 +191,6 @@ public class AnalyzerListener implements DustListener {
     @Override
     public void exitIf_statment(DustParser.If_statmentContext ctx) {
         scope = scope.parent;
-
     }
 
     @Override
