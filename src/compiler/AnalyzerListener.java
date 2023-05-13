@@ -8,6 +8,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.util.Objects;
+
 
 public class AnalyzerListener implements DustListener {
     IScope scope;
@@ -70,7 +72,12 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterArrayDec(DustParser.ArrayDecContext ctx) {
+        String varName = ctx.ID().getText();
+        String fieldType = ctx.TYPE() != null ? ctx.TYPE().getText() : ctx.CLASSNAME().getText();
+        Symbol symbol = new Symbol(varName, fieldType, "[]");
 
+        // Add the symbol to the current scope
+        scope.add(symbol);
     }
 
     @Override
