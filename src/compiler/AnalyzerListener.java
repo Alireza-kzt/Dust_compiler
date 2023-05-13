@@ -13,6 +13,7 @@ import java.util.Objects;
 
 public class AnalyzerListener implements DustListener {
     IScope scope;
+    Boolean isConstructor = false;
 
     public AnalyzerListener(GlobalScope globalScope) {
         this.scope = globalScope;
@@ -63,7 +64,14 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterVarDec(DustParser.VarDecContext ctx) {
+        if(!isConstructor) {
+            String fieldName = ctx.ID().getText();
+            String fieldType = ctx.TYPE() != null ? ctx.TYPE().getText() : ctx.CLASSNAME().getText();
+            Symbol symbol = new Symbol(fieldName, fieldName, fieldType);
 
+            // Add the symbol to the current scope
+            scope.add(symbol);
+        }
     }
 
     @Override
@@ -89,7 +97,7 @@ public class AnalyzerListener implements DustListener {
     public void enterMethodDec(DustParser.MethodDecContext ctx) {
         String methodName = ctx.ID().getText();
         int line = ctx.start.getLine();
-        String returnType = ctx.TYPE() != null ? ctx.TYPE().getText() : "dynamic";
+        String returnType = ctx.TYPE() != null ? ctx.TYPE().getText() : "void";
 
         scope = scope.add(new MethodScope(methodName, line, returnType));
 
@@ -109,6 +117,7 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterConstructor(DustParser.ConstructorContext ctx) {
+        isConstructor = true;
         String methodName = ctx.CLASSNAME().getText();
         int classLine = ctx.start.getLine();
 
@@ -118,13 +127,14 @@ public class AnalyzerListener implements DustListener {
             for (DustParser.VarDecContext y : x.varDec()) {
                 String fieldName = y.ID().getText();
                 String fieldType = y.TYPE() != null ? y.TYPE().getText() : y.CLASSNAME().getText();
-                scope.add(new Symbol(fieldName, fieldName, fieldType));
+                scope.add(new Symbol("Param_" + fieldName, fieldName, fieldType));
             }
         }
     }
 
     @Override
     public void exitConstructor(DustParser.ConstructorContext ctx) {
+        isConstructor = false;
         scope = scope.parent;
     }
 
