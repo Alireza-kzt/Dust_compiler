@@ -83,7 +83,6 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void exitArrayDec(DustParser.ArrayDecContext ctx) {
-        scope = scope.parent;
     }
 
     @Override
@@ -98,7 +97,7 @@ public class AnalyzerListener implements DustListener {
             for (DustParser.VarDecContext y : x.varDec()) {
                 String fieldName = y.ID().getText();
                 String fieldType = y.TYPE() != null ? y.TYPE().getText() : y.CLASSNAME().getText();
-                scope.add(new Symbol(fieldName, fieldName, fieldType));
+                scope.add(new Symbol("Param_" + fieldName, fieldName, fieldType));
             }
         }
     }

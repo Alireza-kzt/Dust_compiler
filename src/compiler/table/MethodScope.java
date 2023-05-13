@@ -10,7 +10,7 @@ public class MethodScope extends IScope {
 
     @Override
     public void print() {
-        System.out.println("Method_" + name + "Value : Method (name: " + name + ") (return type : " + returnType + ")");
+        System.out.println("Key Method_" + name + " | Value : Method (name: " + name + ") (return type : " + returnType + ")");
         for (ISymbol scope : scopes) scope.print();
         System.out.println("=========================================================================================");
     }
