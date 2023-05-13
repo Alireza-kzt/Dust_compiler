@@ -90,12 +90,24 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterMethodDec(DustParser.MethodDecContext ctx) {
+        String methodName = ctx.ID().getText();
+        int line = ctx.start.getLine();
+        String returnType = ctx.TYPE() != null ? ctx.TYPE().getText() : "dynamic";
 
+        scope = scope.add(new MethodScope(methodName, line, returnType));
+
+        for (DustParser.ParameterContext x : ctx.parameter()) {
+            for (DustParser.VarDecContext y : x.varDec()) {
+                String fieldName = y.ID().getText();
+                String fieldType = y.TYPE() != null ? y.TYPE().getText() : y.CLASSNAME().getText();
+                scope.add(new Symbol(fieldName, fieldName, fieldType));
+            }
+        }
     }
 
     @Override
     public void exitMethodDec(DustParser.MethodDecContext ctx) {
-
+        scope = scope.parent;
     }
 
     @Override
@@ -103,7 +115,7 @@ public class AnalyzerListener implements DustListener {
         String methodName = ctx.CLASSNAME().getText();
         int classLine = ctx.start.getLine();
 
-        scope = scope.add(new MethodScope(methodName, classLine, methodName));
+        scope = scope.add(new MethodScope("Constructor_" + methodName, classLine, methodName));
 
         for (DustParser.ParameterContext x : ctx.parameter()) {
             for (DustParser.VarDecContext y : x.varDec()) {
