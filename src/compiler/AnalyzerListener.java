@@ -40,8 +40,9 @@ public class AnalyzerListener implements DustListener {
     public void enterClassDef(DustParser.ClassDefContext ctx) {
         String className = ctx.CLASSNAME(0).getText();
         int classLine = ctx.start.getLine();
+        String parent = "";
 
-        scope = scope.add(new ClassScope(className, classLine));
+        scope = scope.add(new ClassScope(className, classLine, parent));
     }
 
     @Override
