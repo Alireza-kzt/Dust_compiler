@@ -103,11 +103,13 @@ public class AnalyzerListener implements DustListener {
         String methodName = ctx.CLASSNAME().getText();
         int classLine = ctx.start.getLine();
 
-        scope = scope.add(new MethodScope(methodName, classLine));
+        scope = scope.add(new MethodScope(methodName, classLine, methodName));
 
         for (DustParser.ParameterContext x : ctx.parameter()) {
             for (DustParser.VarDecContext y : x.varDec()) {
-                scope.add(new Symbol(y.getText(), y.getText())); // TODO key, value
+                String fieldName = y.ID().getText();
+                String fieldType = y.TYPE() != null ? y.TYPE().getText() : y.CLASSNAME().getText();
+                scope.add(new Symbol(fieldName, fieldName, fieldType));
             }
         }
     }
@@ -169,32 +171,41 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterIf_statment(DustParser.If_statmentContext ctx) {
+        int line = ctx.start.getLine();
+
+        scope = scope.add(new BlockScope(Keywords.__if__, line));
+
 
     }
 
     @Override
     public void exitIf_statment(DustParser.If_statmentContext ctx) {
+        scope = scope.parent;
 
     }
 
     @Override
     public void enterWhile_statment(DustParser.While_statmentContext ctx) {
+        int line = ctx.start.getLine();
 
+        scope = scope.add(new BlockScope(Keywords.__while__, line));
     }
 
     @Override
     public void exitWhile_statment(DustParser.While_statmentContext ctx) {
-
+        scope = scope.parent;
     }
 
     @Override
     public void enterIf_else_statment(DustParser.If_else_statmentContext ctx) {
+        int line = ctx.start.getLine();
 
+        scope = scope.add(new BlockScope(Keywords.__elif__, line));
     }
 
     @Override
     public void exitIf_else_statment(DustParser.If_else_statmentContext ctx) {
-
+        scope = scope.parent;
     }
 
     @Override
@@ -209,12 +220,14 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterFor_statment(DustParser.For_statmentContext ctx) {
+        int line = ctx.start.getLine();
 
+        scope = scope.add(new BlockScope(Keywords.__for__, line));
     }
 
     @Override
     public void exitFor_statment(DustParser.For_statmentContext ctx) {
-
+        scope = scope.parent;
     }
 
     @Override
