@@ -12,8 +12,12 @@ public class Symbol extends ISymbol {
         this.type = type;
     }
 
+    public String getValue() {
+        return key + "_" + value;
+    }
+
     @Override
     public void print() {
-        System.out.println("Key: Field_" + key + " | Value : " + value + ", Type: " + type);
+        System.out.println("Key: " + getValue() + " | Value : " + value + ", Type: " + type);
     }
 }

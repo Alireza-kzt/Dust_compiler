@@ -43,8 +43,9 @@ public class AnalyzerListener implements DustListener {
     public void enterClassDef(DustParser.ClassDefContext ctx) {
         String className = ctx.CLASSNAME(0).getText();
         int classLine = ctx.start.getLine();
+        String ruleNames = ctx.getChild(3).getText();
 
-        scope = scope.add(new ClassScope(className, classLine, ""));
+        scope = scope.add(new ClassScope(className, classLine, ruleNames));
     }
 
     @Override
@@ -64,10 +65,10 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterVarDec(DustParser.VarDecContext ctx) {
-        if(!isConstructor) {
+        if (!isConstructor) {
             String fieldName = ctx.ID().getText();
             String fieldType = ctx.TYPE() != null ? ctx.TYPE().getText() : ctx.CLASSNAME().getText();
-            Symbol symbol = new Symbol(fieldName, fieldName, fieldType);
+            Symbol symbol = new Symbol("Field", fieldName, fieldType);
 
             // Add the symbol to the current scope
             scope.add(symbol);
@@ -83,7 +84,7 @@ public class AnalyzerListener implements DustListener {
     public void enterArrayDec(DustParser.ArrayDecContext ctx) {
         String varName = ctx.ID().getText();
         String fieldType = ctx.TYPE() != null ? ctx.TYPE().getText() : ctx.CLASSNAME().getText();
-        Symbol symbol = new Symbol(varName, fieldType, "[]");
+        Symbol symbol = new Symbol("Field", varName, fieldType + "[]");
 
         // Add the symbol to the current scope
         scope.add(symbol);
@@ -105,7 +106,7 @@ public class AnalyzerListener implements DustListener {
             for (DustParser.VarDecContext y : x.varDec()) {
                 String fieldName = y.ID().getText();
                 String fieldType = y.TYPE() != null ? y.TYPE().getText() : y.CLASSNAME().getText();
-                scope.add(new Symbol("Param_" + fieldName, fieldName, fieldType));
+                scope.add(new Symbol("Param", fieldName, fieldType));
             }
         }
     }
@@ -121,13 +122,13 @@ public class AnalyzerListener implements DustListener {
         String methodName = ctx.CLASSNAME().getText();
         int classLine = ctx.start.getLine();
 
-        scope = scope.add(new MethodScope("Constructor_" + methodName, classLine, methodName));
+        scope = scope.add(new MethodScope("Constructor", classLine, methodName));
 
         for (DustParser.ParameterContext x : ctx.parameter()) {
             for (DustParser.VarDecContext y : x.varDec()) {
                 String fieldName = y.ID().getText();
                 String fieldType = y.TYPE() != null ? y.TYPE().getText() : y.CLASSNAME().getText();
-                scope.add(new Symbol("Param_" + fieldName, fieldName, fieldType));
+                scope.add(new Symbol("Param", fieldName, fieldType));
             }
         }
     }
