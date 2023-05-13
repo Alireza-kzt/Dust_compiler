@@ -12,5 +12,6 @@ public class MethodScope extends IScope {
     public void print() {
         System.out.println("Method_" + name + "Value : Method (name: " + name + ") (return type : " + returnType + ")");
         for (ISymbol scope : scopes) scope.print();
+        System.out.println("=========================================================================================");
     }
 }

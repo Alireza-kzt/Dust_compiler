@@ -200,14 +200,12 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterIf_else_statment(DustParser.If_else_statmentContext ctx) {
-        int line = ctx.start.getLine();
 
-        scope = scope.add(new BlockScope(Keywords.__elif__, line));
     }
 
     @Override
     public void exitIf_else_statment(DustParser.If_else_statmentContext ctx) {
-        scope = scope.parent;
+
     }
 
     @Override
