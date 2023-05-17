@@ -19,7 +19,7 @@ public abstract class IScope extends ISymbol {
         return scope;
     }
 
-    public ISymbol add(ISymbol symbol) {
+    public Symbol add(Symbol symbol) {
         symbol.parent = this;
         scopes.add(symbol);
         return symbol;

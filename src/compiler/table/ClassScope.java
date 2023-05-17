@@ -11,9 +11,10 @@ public class ClassScope extends IScope {
     @Override
     public void print() {
         System.out.println("------ " + name + " : " + line + " ------");
+        String param = "";
         for (ISymbol scope : scopes) {
             if (scope instanceof MethodScope) {
-                System.out.println("Method_" + ((MethodScope) scope).name + " | Value: Method(name: " + ((MethodScope) scope).name + "), (returnType: " + ((MethodScope) scope).returnType + ")");
+                System.out.println("Method_" + ((MethodScope) scope).name + " | Value: Method(name: " + ((MethodScope) scope).name + "), (returnType: " + ((MethodScope) scope).returnType + "), (Params: " + ((MethodScope) scope).parameters + ")");
             }
         }
         ;

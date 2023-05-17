@@ -1,10 +1,22 @@
 package compiler.table;
 
 public class MethodScope extends IScope {
+    public String parameters = "";
+    public int parametersLen = 0;
     String returnType;
+
     public MethodScope(String name, int line, String returnType) {
         super(name, line);
         this.returnType = returnType;
+    }
+
+    @Override
+    public Symbol add(Symbol symbol) {
+        if (symbol.field == "Param") {
+            parameters += "[name: " + symbol.name + ", type: " + symbol.type + ", index: " + parametersLen + "]";
+            parametersLen++;
+        }
+        return super.add(symbol);
     }
 
     @Override

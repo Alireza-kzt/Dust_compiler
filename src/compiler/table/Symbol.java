@@ -3,7 +3,6 @@ package compiler.table;
 public class Symbol extends ISymbol {
     String field;
     String name;
-
     String type;
 
     public Symbol(String field, String name, String type) {
