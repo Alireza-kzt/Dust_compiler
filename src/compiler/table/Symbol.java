@@ -4,7 +4,7 @@ public class Symbol extends ISymbol {
     String field;
     String name;
     String type;
-    boolean is_defined;
+    public boolean is_defined;
 
     public Symbol(String field, String name, String type) {
         this.field = field;

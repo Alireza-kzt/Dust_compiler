@@ -78,8 +78,7 @@ public class AnalyzerListener implements DustListener {
         if (!isConstructor) {
             String fieldName = ctx.ID().getText();
             String fieldType = ctx.TYPE() != null ? ctx.TYPE().getText() : ctx.CLASSNAME().getText();
-            System.out.println("fuckkkkkkkkkkkkkkkkkkk: " + ctx.getText().toString());
-            Symbol symbol = new Symbol("Field", fieldName, fieldType, "test");
+            Symbol symbol = new Symbol("Field", fieldName, fieldType);
 
             // Add the symbol to the current scope
             scope.add(symbol);
@@ -95,7 +94,7 @@ public class AnalyzerListener implements DustListener {
     public void enterArrayDec(DustParser.ArrayDecContext ctx) {
         String varName = ctx.ID().getText();
         String fieldType = ctx.TYPE() != null ? ctx.TYPE().getText() : ctx.CLASSNAME().getText();
-        Symbol symbol = new Symbol("Field", varName, fieldType, "");
+        Symbol symbol = new Symbol("Field", varName, fieldType);
 
         // Add the symbol to the current scope
         scope.add(symbol);
@@ -117,7 +116,7 @@ public class AnalyzerListener implements DustListener {
             for (DustParser.VarDecContext y : x.varDec()) {
                 String fieldName = y.ID().getText();
                 String fieldType = y.TYPE() != null ? y.TYPE().getText() : y.CLASSNAME().getText();
-                scope.add(new Symbol("Param", fieldName, fieldType, ""));
+                scope.add(new Symbol("Param", fieldName, fieldType));
             }
         }
     }
@@ -139,7 +138,7 @@ public class AnalyzerListener implements DustListener {
             for (DustParser.VarDecContext y : x.varDec()) {
                 String fieldName = y.ID().getText();
                 String fieldType = y.TYPE() != null ? y.TYPE().getText() : y.CLASSNAME().getText();
-                scope.add(new Symbol("Param", fieldName, fieldType, ""));
+                scope.add(new Symbol("Param", fieldName, fieldType));
             }
         }
     }
@@ -272,9 +271,7 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterAssignment(DustParser.AssignmentContext ctx) {
-//        ctx.variable_name.is_defined = true;
-        System.out.println("Enter Assignment function context: " + ctx.getText().toString());
-
+        scope.assignment(ctx.getText());
     }
 
     @Override

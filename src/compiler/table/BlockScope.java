@@ -9,6 +9,5 @@ public class BlockScope extends IScope {
     public void print() {
         System.out.println("------ " + name + " : " + line + " ------");
         for (ISymbol scope : scopes) scope.print();
-
     }
 }
