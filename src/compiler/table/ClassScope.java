@@ -12,11 +12,11 @@ public class ClassScope extends IScope {
     public void print() {
         System.out.println("------ " + name + " : " + line + " ------");
         for (ISymbol scope : scopes) {
-            if(scope instanceof MethodScope) {
-                Symbol sym = new Symbol("Method", ((MethodScope) scope).name, ((MethodScope) scope).returnType);
-                sym.print();
+            if (scope instanceof MethodScope) {
+                System.out.println("Method_" + ((MethodScope) scope).name + " | Value: Method(name: " + ((MethodScope) scope).name + "), (returnType: " + ((MethodScope) scope).returnType + ")");
             }
-        };
+        }
+        ;
         for (ISymbol scope : scopes) scope.print();
         System.out.println("=========================================================================================");
     }

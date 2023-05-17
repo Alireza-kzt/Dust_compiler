@@ -10,8 +10,7 @@ public class GlobalScope extends IScope {
         System.out.println("------ " + name + " : " + line + " ------");
         for (ISymbol scope : scopes) {
             if(scope instanceof ClassScope) {
-                Symbol sym = new Symbol("Class", ((ClassScope) scope).name, ((ClassScope) scope).extended);
-                sym.print();
+                System.out.println("Class_" + ((ClassScope) scope).name + " | Value: Class(name: " + ((ClassScope) scope).name + "), (parents: " + ((ClassScope) scope).extended + ")");
             }
         };
         System.out.println("=========================================================================================");
