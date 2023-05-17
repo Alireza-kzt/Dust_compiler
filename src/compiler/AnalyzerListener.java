@@ -122,7 +122,7 @@ public class AnalyzerListener implements DustListener {
         String methodName = ctx.CLASSNAME().getText();
         int classLine = ctx.start.getLine();
 
-        scope = scope.add(new MethodScope("Constructor", classLine, methodName));
+        scope = scope.add(new MethodScope("Constructor_" + methodName, classLine, methodName));
 
         for (DustParser.ParameterContext x : ctx.parameter()) {
             for (DustParser.VarDecContext y : x.varDec()) {
