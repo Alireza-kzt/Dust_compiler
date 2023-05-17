@@ -13,10 +13,14 @@ public class ClassScope extends IScope {
         System.out.println("------ " + name + " : " + line + " ------");
         for (ISymbol scope : scopes) {
             if (scope instanceof MethodScope) {
-                System.out.println("Method_" + ((MethodScope) scope).name + " | Value: Method(name: " + ((MethodScope) scope).name + "), (returnType: " + ((MethodScope) scope).returnType + ")");
+                String methodScopeName = ((MethodScope) scope).name;
+                if (methodScopeName.toLowerCase().contains("constructor"))
+                    System.out.println("Method_" + methodScopeName + " | Value: Constructor(name: " + methodScopeName + "), (returnType: " + ((MethodScope) scope).returnType + ")");
+                else
+                    System.out.println("Method_" + methodScopeName + " | Value: Method(name: " + methodScopeName + "), (returnType: " + ((MethodScope) scope).returnType + ")");
             }
         }
-        ;
+
         for (ISymbol scope : scopes) scope.print();
         System.out.println("=========================================================================================");
     }
