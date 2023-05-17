@@ -15,9 +15,9 @@ public class ClassScope extends IScope {
             if (scope instanceof MethodScope) {
                 String methodScopeName = ((MethodScope) scope).name;
                 if (methodScopeName.toLowerCase().contains("constructor"))
-                    System.out.println("Method_" + methodScopeName + " | Value: Constructor(name: " + methodScopeName + "), (returnType: " + ((MethodScope) scope).returnType + ")");
+                    System.out.println("Method_" + methodScopeName + " | Value: Constructor(name: " + methodScopeName + "), (returnType: " + ((MethodScope) scope).returnType + "), (Params: " + ((MethodScope) scope).parameters + ")");
                 else
-                    System.out.println("Method_" + ((MethodScope) scope).name + " | Value: Method(name: " + ((MethodScope) scope).name + "), (returnType: " + ((MethodScope) scope).returnType + "), (Params: " + ((MethodScope) scope).parameters + ")");
+                    System.out.println("Method_" + methodScopeName + " | Value: Method(name: " + methodScopeName + "), (returnType: " + ((MethodScope) scope).returnType + "), (Params: " + ((MethodScope) scope).parameters + ")");
             }
         }
         ;
