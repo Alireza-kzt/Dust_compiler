@@ -43,10 +43,20 @@ public class AnalyzerListener implements DustListener {
     public void enterClassDef(DustParser.ClassDefContext ctx) {
         String className = ctx.CLASSNAME(0).getText();
         int classLine = ctx.start.getLine();
-        String ruleNames = ctx.getChild(3).getText();
+        String context = ctx.getText();
 
-        scope = scope.add(new ClassScope(className, classLine, ruleNames));
+        int indexOfClassName = context.indexOf(className);
+        int index = indexOfClassName + className.length();
+
+        while (context.charAt(index) != ')') {
+            index++;
+        }
+
+        String extended = context.substring(indexOfClassName + className.length() + 1, index);
+
+        scope = scope.add(new ClassScope(className, classLine, extended));
     }
+
 
     @Override
     public void exitClassDef(DustParser.ClassDefContext ctx) {
