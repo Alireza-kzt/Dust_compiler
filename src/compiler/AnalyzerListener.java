@@ -271,7 +271,6 @@ public class AnalyzerListener implements DustListener {
 
     @Override
     public void enterAssignment(DustParser.AssignmentContext ctx) {
-        scope.assignment(ctx.getText());
     }
 
     @Override
