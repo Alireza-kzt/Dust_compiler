@@ -1,16 +1,24 @@
 package compiler.table;
 
+import java.util.Objects;
+
 public class Symbol extends ISymbol {
     String field;
     String name;
     String type;
-    public boolean is_defined;
+    String is_defined;
 
     public Symbol(String field, String name, String type) {
         this.field = field;
         this.name = name;
         this.type = type;
-        this.is_defined = false;
+
+        boolean is_int = Objects.equals(this.type, "int");
+        boolean is_String = Objects.equals(this.type, "String");
+        boolean is_float = Objects.equals(this.type, "float");
+        boolean is_bool = Objects.equals(this.type, "bool");
+        boolean is_builtin_type = is_int || is_String || is_float || is_bool;
+        this.is_defined = (is_builtin_type)? "True":"False";
     }
 
     public String getValue() {
