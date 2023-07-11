@@ -1,8 +1,6 @@
 package compiler;
 
-import compiler.table.ClassScope;
-import compiler.table.GlobalScope;
-import compiler.table.ISymbol;
+import compiler.table.*;
 import gen.DustParser;
 
 import java.util.ArrayList;
@@ -40,12 +38,38 @@ public class CodeAnalysis extends AnalyzerListener {
             }
         }
 
-        if(!isClassDef){
+        if (!isClassDef) {
             errors.add(new Error("Class not defined", "Class " + className + " not defined", classLine));
         }
 
         super.enterImportclass(ctx);
     }
 
+    @Override
+    public void enterVarDec(DustParser.VarDecContext ctx) {
+        String fieldName = ctx.ID().getText();
+        String fieldType = ctx.TYPE() != null ? ctx.TYPE().getText() : ctx.CLASSNAME().getText();
+        int fieldLine = ctx.start.getLine();
+        Symbol symbol = new Symbol("Field", fieldName, fieldType);
+        boolean isVarDef = false;
+        IScope tempScope = scope;
 
+        while (!(tempScope instanceof GlobalScope)) {
+            for (var s : tempScope.scopes) {
+                if (s instanceof Symbol) {
+                    if (((Symbol) s).getValue().equals(symbol.getValue())) {
+                        isVarDef = true;
+                        break;
+                    }
+                }
+            }
+            tempScope = tempScope.parent;
+        }
+
+        if (isVarDef) {
+            errors.add(new Error("Duplicated Defined", "var " + fieldName + " is defined", fieldLine));
+        } else {
+            super.enterVarDec(ctx);
+        }
+    }
 }
