@@ -3,10 +3,10 @@ package compiler.table;
 import java.util.Objects;
 
 public class Symbol extends ISymbol {
-    String field;
-    String name;
-    String type;
-    String is_defined;
+    public String field;
+    public String name;
+    public String type;
+    public String is_defined;
 
     public Symbol(String field, String name, String type) {
         this.field = field;

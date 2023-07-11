@@ -109,11 +109,36 @@ public class CodeAnalysis extends AnalyzerListener {
         if (isMethodFind) {
             String argList = ctx.args().getText();
             ArrayList<String> args = new ArrayList<String>(Arrays.asList(argList.replaceAll("[()]", "").split(",")));
+
             if (methodScope.parametersLen != args.size()) {
                 errors.add(new Error("Number of parameter doesnt match", "Method " + methodName, line));
+            } else {
+                boolean isAllParamMatch = true;
+                for (ISymbol param : methodScope.scopes) {
+                    for (var arg : args) {
+                        if(param instanceof  Symbol) {
+                            if (((Symbol) param).is_defined.equals("False")) {
+                                // TODO
+                                isAllParamMatch = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (!isAllParamMatch) {
+                    errors.add(new Error("Type of parameter doesnt match", "Method " + methodName, line));
+                }
             }
+
         } else {
             errors.add(new Error("Method not Found", "Method " + methodName + " not found", line));
         }
+    }
+
+    public String getDustType(String value) {
+        String type = "S";
+
+
+        return type;
     }
 }
