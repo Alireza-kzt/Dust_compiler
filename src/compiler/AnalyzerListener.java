@@ -8,8 +8,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import java.util.Objects;
-
 
 public class AnalyzerListener implements DustListener {
     IScope scope;
@@ -108,7 +106,7 @@ public class AnalyzerListener implements DustListener {
     public void enterMethodDec(DustParser.MethodDecContext ctx) {
         String methodName = ctx.ID().getText();
         int line = ctx.start.getLine();
-        String returnType = ctx.TYPE() != null ? ctx.TYPE().getText() : "void";
+        String returnType = ctx.TYPE() != null ? ctx.TYPE().getText() : "";
 
         scope = scope.add(new MethodScope(methodName, line, returnType));
 

@@ -1,5 +1,7 @@
 import Nothing
 import Nothing2
+import OneFunnyClass
+
 class Human(Nothing, Nothing2){
     Nose nose
     Hand[2] hands
@@ -11,7 +13,10 @@ class Human(Nothing, Nothing2){
         self.nose = n
     }
 
-    def Voice speak(){
+    def Voice speak(float a){
+        while(true){
+            int hi = 0
+        }
         Voic voice
         return voice
     }
