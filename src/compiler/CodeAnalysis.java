@@ -4,15 +4,20 @@ import compiler.table.*;
 import gen.DustParser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class CodeAnalysis extends AnalyzerListener {
     public ArrayList<Error> errors = new ArrayList<>();
+    public ArrayList<DustParser.Method_callContext> methodCalls = new ArrayList<>();
 
     public CodeAnalysis(GlobalScope globalScope) {
         super(globalScope);
     }
 
     public void printErrors() {
+        for (var call : methodCalls) {
+            check_method_call_has_error(call);
+        }
         if (errors.isEmpty()) {
             System.out.println("Code Executed with 0 error.");
         } else {
@@ -75,32 +80,40 @@ public class CodeAnalysis extends AnalyzerListener {
 
     @Override
     public void enterMethod_call(DustParser.Method_callContext ctx) {
+        methodCalls.add(ctx);
+        super.enterMethod_call(ctx);
+    }
+
+    public void check_method_call_has_error(DustParser.Method_callContext ctx) {
         String methodName = ctx.ID().getText();
         int line = ctx.start.getLine();
-        IScope relatedMethodScope = scope;
         boolean isMethodFind = false;
+        MethodScope methodScope = null;
 
 
-        while (!(relatedMethodScope instanceof GlobalScope)) {
-            for (var s : relatedMethodScope.scopes) {
-                if (s instanceof MethodScope) {
-                    if (((MethodScope) s).name.equals(methodName)) {
-                        isMethodFind = true;
-                        break;
+        for (var s : scope.scopes) {
+            if (s instanceof ClassScope) {
+                for (var m : ((ClassScope) s).scopes) {
+                    if (m instanceof MethodScope) {
+                        if (((MethodScope) m).name.equals(methodName)) {
+                            methodScope = ((MethodScope) m);
+                            isMethodFind = true;
+                            break;
+                        }
                     }
-
                 }
-
             }
-            relatedMethodScope = relatedMethodScope.parent;
+
         }
 
         if (isMethodFind) {
-            // TODO
+            String argList = ctx.args().getText();
+            ArrayList<String> args = new ArrayList<String>(Arrays.asList(argList.replaceAll("[()]", "").split(",")));
+            if (methodScope.parametersLen != args.size()) {
+                errors.add(new Error("Number of parameter doesnt match", "Method " + methodName, line));
+            }
         } else {
             errors.add(new Error("Method not Found", "Method " + methodName + " not found", line));
         }
-
-        super.enterMethod_call(ctx);
     }
 }

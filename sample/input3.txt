@@ -29,7 +29,8 @@ class Human(Nothing, Nothing2){
             if(calories > 2) {
                 print("hi")
             }
-            self.isHungry = self.checkIsHungry()
+            self.isHungry = self.checkIsHungry(true)
+            self.isHungry = self.checkIsNotHun()
         }
     }
 
