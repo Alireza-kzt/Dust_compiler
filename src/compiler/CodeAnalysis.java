@@ -72,4 +72,35 @@ public class CodeAnalysis extends AnalyzerListener {
             super.enterVarDec(ctx);
         }
     }
+
+    @Override
+    public void enterMethod_call(DustParser.Method_callContext ctx) {
+        String methodName = ctx.ID().getText();
+        int line = ctx.start.getLine();
+        IScope relatedMethodScope = scope;
+        boolean isMethodFind = false;
+
+
+        while (!(relatedMethodScope instanceof GlobalScope)) {
+            for (var s : relatedMethodScope.scopes) {
+                if (s instanceof MethodScope) {
+                    if (((MethodScope) s).name.equals(methodName)) {
+                        isMethodFind = true;
+                        break;
+                    }
+
+                }
+
+            }
+            relatedMethodScope = relatedMethodScope.parent;
+        }
+
+        if (isMethodFind) {
+            // TODO
+        } else {
+            errors.add(new Error("Method not Found", "Method " + methodName + " not found", line));
+        }
+
+        super.enterMethod_call(ctx);
+    }
 }
