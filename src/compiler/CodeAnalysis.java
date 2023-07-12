@@ -141,4 +141,24 @@ public class CodeAnalysis extends AnalyzerListener {
 
         return type;
     }
+
+    @Override
+    public void enterClass_body(DustParser.Class_bodyContext ctx) {
+        String className = scope.name;
+        int line = ctx.start.getLine();
+
+        for (ISymbol scope : scope.scopes) {
+            if (scope instanceof MethodScope) {
+                String methodScopeName = ((MethodScope) scope).name;
+                if (methodScopeName.contains("Constructor")) {
+                    if (!className.equals(methodScopeName.replace("Constructor_", ""))) {
+                        errors.add(new Error("Constructor not match", className + " not match with constructor", line));
+                    }
+                }
+            }
+        }
+
+
+        super.enterClass_body(ctx);
+    }
 }
