@@ -35,7 +35,7 @@ class Human(Nothing, Nothing2){
     }
 
     def bool checkIsHungry(){
-        self.eat(foo, foo);
+        self.eat(foo, false, 2);
         return true
     }
 }

@@ -121,10 +121,13 @@ public class CodeAnalysis extends AnalyzerListener {
                 for (ISymbol param : methodScope.scopes) {
                     for (var arg : args) {
                         if (param instanceof Symbol) {
-                            if (((Symbol) param).is_defined.equals("False")) {
-                                // TODO
-                                isAllParamMatch = false;
-                                break;
+                            if (!((Symbol) param).is_defined.equals("False")) {
+                                if (!typeOf(arg).isEmpty()) {
+                                    if (((Symbol) param).type.equals(typeOf(arg))) {
+                                        isAllParamMatch = false;
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
@@ -139,9 +142,35 @@ public class CodeAnalysis extends AnalyzerListener {
         }
     }
 
-    public String getDustType(String value) {
-        String type = "S";
+    private String typeOf(String arg) {
+        String type = "";
 
+        if (arg.contains("\"") || arg.contains("\'")) {
+            type = "string";
+        } else {
+
+            try {
+                Integer.parseInt(arg);
+                type = "int";
+            } catch (Exception e) {
+                type = "";
+            }
+
+            if (arg.contains(".")) {
+                try {
+                    Float.parseFloat(arg);
+                    type = "float";
+                } catch (Exception e) {
+                    type = "";
+                }
+            }
+
+            if (arg.equals("true") || arg.equals("false")) {
+                type = "bool";
+            }
+
+
+        }
 
         return type;
     }
@@ -161,5 +190,25 @@ public class CodeAnalysis extends AnalyzerListener {
                     }
                 }
             }
+    }
+
+
+    @Override
+    public void enterAssignment(DustParser.AssignmentContext ctx) {
+        for (ISymbol s: scope.scopes) {
+            if (s instanceof Symbol) {
+                String symbolName = ((Symbol) s).name;
+                if (symbolName.toLowerCase().contains("field")){
+                    if(symbolName.contains("[") && symbolName.contains("]"))  {
+                        int index = Integer.parseInt(symbolName.replace("[", "").replace("]", ""));
+                        int range = Integer.parseInt(symbolName.replace("[", "").replace("]", ""));
+                        if(index >= range) {
+                            errors.add(new Error("Out of Range", "Element not exist", ctx.start.getLine()));
+                        }
+                    }
+                }
+                    System.out.println(((Symbol) s).name);
+            }
+        }
     }
 }
