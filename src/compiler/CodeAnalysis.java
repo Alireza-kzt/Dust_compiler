@@ -15,9 +15,13 @@ public class CodeAnalysis extends AnalyzerListener {
     }
 
     public void printErrors() {
+        find_constructor_matching_error();
+
         for (var call : methodCalls) {
             check_method_call_has_error(call);
         }
+
+
         if (errors.isEmpty()) {
             System.out.println("Code Executed with 0 error.");
         } else {
@@ -116,7 +120,7 @@ public class CodeAnalysis extends AnalyzerListener {
                 boolean isAllParamMatch = true;
                 for (ISymbol param : methodScope.scopes) {
                     for (var arg : args) {
-                        if(param instanceof  Symbol) {
+                        if (param instanceof Symbol) {
                             if (((Symbol) param).is_defined.equals("False")) {
                                 // TODO
                                 isAllParamMatch = false;
@@ -142,23 +146,20 @@ public class CodeAnalysis extends AnalyzerListener {
         return type;
     }
 
-    @Override
-    public void enterClass_body(DustParser.Class_bodyContext ctx) {
-        String className = scope.name;
-        int line = ctx.start.getLine();
-
-        for (ISymbol scope : scope.scopes) {
-            if (scope instanceof MethodScope) {
-                String methodScopeName = ((MethodScope) scope).name;
-                if (methodScopeName.contains("Constructor")) {
-                    if (!className.equals(methodScopeName.replace("Constructor_", ""))) {
-                        errors.add(new Error("Constructor not match", className + " not match with constructor", line));
+    public void find_constructor_matching_error() {
+        for (ISymbol classScope : scope.scopes)
+            if (classScope instanceof ClassScope) {
+                String className = ((ClassScope) classScope).name;
+                for (ISymbol methosScope : ((ClassScope) classScope).scopes) {
+                    if (methosScope instanceof MethodScope) {
+                        String methodScopeName = ((MethodScope) methosScope).name;
+                        if (methodScopeName.toLowerCase().contains("constructor")) {
+                            if (!className.equals(methodScopeName.replace("constructor_", ""))) {
+                                errors.add(new Error("Constructor not match", "Name of constructor method " + methodScopeName + " does not match with class " + className, ((MethodScope) methosScope).line));
+                            }
+                        }
                     }
                 }
             }
-        }
-
-
-        super.enterClass_body(ctx);
     }
 }
