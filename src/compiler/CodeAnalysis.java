@@ -9,9 +9,6 @@ public class CodeAnalysis extends AnalyzerListener {
     public ArrayList<Error> errors = new ArrayList<>();
     public ArrayList<DustParser.Method_callContext> methodCalls = new ArrayList<>();
 
-    public Set<String> ArrayNames = new HashSet<>();
-    public ArrayList<Integer> ArrayOutOfRangeErrorLine = new ArrayList<>();
-
     public CodeAnalysis(GlobalScope globalScope) {
         super(globalScope);
     }
@@ -201,19 +198,11 @@ public class CodeAnalysis extends AnalyzerListener {
         } else {
             name = ctxToString.substring(0, ctxToString.indexOf("["));
         }
-        String size = ctxToString.substring(ctxToString.indexOf("[") + 1, ctxToString.indexOf("]"));
         return name;
     }
 
     public String getSizebyCtx(String ctxToString) {
-        String name;
-        if (ctxToString.contains(".")) {
-            name = ctxToString.substring(ctxToString.indexOf(".") + 1, ctxToString.indexOf('['));
-        } else {
-            name = ctxToString.substring(0, ctxToString.indexOf("["));
-        }
-        String size = ctxToString.substring(ctxToString.indexOf("[") + 1, ctxToString.indexOf("]"));
-        return size;
+        return ctxToString.substring(ctxToString.indexOf("[") + 1, ctxToString.indexOf("]"));
     }
 
     @Override
