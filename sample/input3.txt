@@ -11,6 +11,7 @@ class Human(Nothing, Nothing2){
     bool isHungry
 
     def Humans(Nose n){
+        legs[20] = null
         self.nose = n
     }
 
@@ -35,8 +36,8 @@ class Human(Nothing, Nothing2){
         }
     }
 
-    def bool checkIsHungry(){
-        self.eat(foo, false, 2);
-        return true
+    def bool checkIsHungry() {
+        self.eat(foo, false)
+        return 0
     }
 }

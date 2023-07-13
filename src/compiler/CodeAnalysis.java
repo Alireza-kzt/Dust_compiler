@@ -187,7 +187,7 @@ public class CodeAnalysis extends AnalyzerListener {
     }
 
     public String getSize(String text) {
-        return text.substring(text.indexOf(',')+1);
+        return text.substring(text.indexOf(',') + 1);
     }
 
     public String getName(String text) {
@@ -197,46 +197,54 @@ public class CodeAnalysis extends AnalyzerListener {
     public String getNameAndIndex(String ctxToString) {
         String name;
         if (ctxToString.contains(".")) {
-            name = ctxToString.substring(ctxToString.indexOf(".")+1, ctxToString.indexOf('['));
-        }
-        else {
+            name = ctxToString.substring(ctxToString.indexOf(".") + 1, ctxToString.indexOf('['));
+        } else {
             name = ctxToString.substring(0, ctxToString.indexOf("["));
         }
-        String size = ctxToString.substring(ctxToString.indexOf("[")+1, ctxToString.indexOf("]"));
-        return name+','+size;
+        String size = ctxToString.substring(ctxToString.indexOf("[") + 1, ctxToString.indexOf("]"));
+        return name;
+    }
+
+    public String getSizebyCtx(String ctxToString) {
+        String name;
+        if (ctxToString.contains(".")) {
+            name = ctxToString.substring(ctxToString.indexOf(".") + 1, ctxToString.indexOf('['));
+        } else {
+            name = ctxToString.substring(0, ctxToString.indexOf("["));
+        }
+        String size = ctxToString.substring(ctxToString.indexOf("[") + 1, ctxToString.indexOf("]"));
+        return size;
     }
 
     @Override
     public void enterAssignment(DustParser.AssignmentContext ctx) {
-        IScope tempScope = scope;
-//        Set<String> names = new HashSet<>();
-        HashMap<String, Integer> arrNameSizeDict= new HashMap<>();
+        if (ctx.getText().contains("[")) {
+            IScope tempScope = scope;
+            Symbol relatedArray = null;
+            boolean arrayFound = false;
 
-        while (!(tempScope instanceof GlobalScope)) {
-            for (var s : tempScope.scopes) {
-//                ((Symbol) s).field.replace(",Field", "");
-                if (s instanceof Symbol && ((Symbol) s).field.contains("Array")) {
-                    String sizeOfArray = getSize(((Symbol) s).field.replace(",Field", ""));
-                    String nameOfArray = ((Symbol) s).name;
-                    System.out.println(sizeOfArray + " " + nameOfArray);
-//                    if (!ArrayNames.contains(nameOfArray)) {
-//                        ArrayNames.add(nameOfArray);
-//                        arrNameSizeDict.put(nameOfArray, Integer.parseInt(sizeOfArray));
-//                    }
-//                    if (ctx.getText().contains("[")) {
-//                        String name = getName(getNameAndIndex(ctx.getText()));
-//                        String index = getSize(getNameAndIndex(ctx.getText()));
-//                        System.out.println(name + " " +
-//                                            index + " | " + sizeOfArray + " " +
-//                                            ctx.start.getLine() + " " + (Integer.parseInt(index) < Integer.parseInt(sizeOfArray)));
-//                    }
+            while (!(tempScope instanceof GlobalScope)) {
+                for (var s : tempScope.scopes) {
+                    if (s instanceof Symbol && ((Symbol) s).field.contains("Array")) {
+                        if (((Symbol) s).name.equals(getNameAndIndex(ctx.getText()))) {
+                            relatedArray = (Symbol) s;
+                            arrayFound = true;
+                            break;
+                        }
+                    }
                 }
+                if (arrayFound) break;
+                tempScope = tempScope.parent;
             }
-            tempScope = tempScope.parent;
+
+            int arrSize = Integer.parseInt(getSize(((Symbol) relatedArray).field.replace(",Field", "")));
+            int ctxArraySize = Integer.parseInt(getSizebyCtx(ctx.getText()));
+
+            if (ctxArraySize > arrSize) {
+                errors.add(new Error("Out of Range", "The element " + ctxArraySize + " not exist in array " + relatedArray.name, ctx.start.getLine()));
+            }
         }
-//        for (String key : arrNameSizeDict.keySet()) {
-//            int value = arrNameSizeDict.get(key);
-//            System.out.println(key + " : " + value);
-//        }
+
+        super.enterAssignment(ctx);
     }
 }
