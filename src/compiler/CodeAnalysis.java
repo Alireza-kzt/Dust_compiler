@@ -3,12 +3,14 @@ package compiler;
 import compiler.table.*;
 import gen.DustParser;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 public class CodeAnalysis extends AnalyzerListener {
     public ArrayList<Error> errors = new ArrayList<>();
     public ArrayList<DustParser.Method_callContext> methodCalls = new ArrayList<>();
+
+    public Set<String> ArrayNames = new HashSet<>();
+    public ArrayList<Integer> ArrayOutOfRangeErrorLine = new ArrayList<>();
 
     public CodeAnalysis(GlobalScope globalScope) {
         super(globalScope);
@@ -192,23 +194,57 @@ public class CodeAnalysis extends AnalyzerListener {
             }
     }
 
+    public String getSize(String text) {
+        return text.substring(text.indexOf(',')+1);
+    }
+
+    public String getName(String text) {
+        return text.substring(0, text.indexOf(','));
+    }
+
+    public String getNameAndIndex(String ctxToString) {
+        String name;
+        if (ctxToString.contains(".")) {
+            name = ctxToString.substring(ctxToString.indexOf(".")+1, ctxToString.indexOf('['));
+        }
+        else {
+            name = ctxToString.substring(0, ctxToString.indexOf("["));
+        }
+        String size = ctxToString.substring(ctxToString.indexOf("[")+1, ctxToString.indexOf("]"));
+        return name+','+size;
+    }
 
     @Override
     public void enterAssignment(DustParser.AssignmentContext ctx) {
-        for (ISymbol s: scope.scopes) {
-            if (s instanceof Symbol) {
-                String symbolName = ((Symbol) s).name;
-                if (symbolName.toLowerCase().contains("field")){
-                    if(symbolName.contains("[") && symbolName.contains("]"))  {
-                        int index = Integer.parseInt(symbolName.replace("[", "").replace("]", ""));
-                        int range = Integer.parseInt(symbolName.replace("[", "").replace("]", ""));
-                        if(index >= range) {
-                            errors.add(new Error("Out of Range", "Element not exist", ctx.start.getLine()));
-                        }
-                    }
+        IScope tempScope = scope;
+//        Set<String> names = new HashSet<>();
+        HashMap<String, Integer> arrNameSizeDict= new HashMap<>();
+
+        while (!(tempScope instanceof GlobalScope)) {
+            for (var s : tempScope.scopes) {
+//                ((Symbol) s).field.replace(",Field", "");
+                if (s instanceof Symbol && ((Symbol) s).field.contains("Array")) {
+                    String sizeOfArray = getSize(((Symbol) s).field.replace(",Field", ""));
+                    String nameOfArray = ((Symbol) s).name;
+                    System.out.println(sizeOfArray + " " + nameOfArray);
+//                    if (!ArrayNames.contains(nameOfArray)) {
+//                        ArrayNames.add(nameOfArray);
+//                        arrNameSizeDict.put(nameOfArray, Integer.parseInt(sizeOfArray));
+//                    }
+//                    if (ctx.getText().contains("[")) {
+//                        String name = getName(getNameAndIndex(ctx.getText()));
+//                        String index = getSize(getNameAndIndex(ctx.getText()));
+//                        System.out.println(name + " " +
+//                                            index + " | " + sizeOfArray + " " +
+//                                            ctx.start.getLine() + " " + (Integer.parseInt(index) < Integer.parseInt(sizeOfArray)));
+//                    }
                 }
-                    System.out.println(((Symbol) s).name);
             }
+            tempScope = tempScope.parent;
         }
+//        for (String key : arrNameSizeDict.keySet()) {
+//            int value = arrNameSizeDict.get(key);
+//            System.out.println(key + " : " + value);
+//        }
     }
 }
