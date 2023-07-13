@@ -19,9 +19,7 @@ public class CodeAnalysis extends AnalyzerListener {
     public void printErrors() {
         find_constructor_matching_error();
 
-        for (var call : methodCalls) {
-            check_method_call_has_error(call);
-        }
+        for (var call : methodCalls) check_method_call_has_error(call);
 
 
         if (errors.isEmpty()) {
@@ -63,18 +61,14 @@ public class CodeAnalysis extends AnalyzerListener {
         int fieldLine = ctx.start.getLine();
         Symbol symbol = new Symbol("Field", fieldName, fieldType);
         boolean isVarDef = false;
-        IScope tempScope = scope;
 
-        while (!(tempScope instanceof GlobalScope)) {
-            for (var s : tempScope.scopes) {
-                if (s instanceof Symbol) {
-                    if (((Symbol) s).getValue().equals(symbol.getValue())) {
-                        isVarDef = true;
-                        break;
-                    }
+        for (var s : scope.scopes) {
+            if (s instanceof Symbol) {
+                if (((Symbol) s).getSignature().contains(symbol.getSignature())) {
+                    isVarDef = true;
+                    break;
                 }
             }
-            tempScope = tempScope.parent;
         }
 
         if (isVarDef) {
@@ -90,31 +84,32 @@ public class CodeAnalysis extends AnalyzerListener {
         super.enterMethod_call(ctx);
     }
 
-    public void check_method_call_has_error(DustParser.Method_callContext ctx) {
-        String methodName = ctx.ID().getText();
-        int line = ctx.start.getLine();
-        boolean isMethodFind = false;
-        MethodScope methodScope = null;
-
-
-        for (var s : scope.scopes) {
-            if (s instanceof ClassScope) {
-                for (var m : ((ClassScope) s).scopes) {
+    public MethodScope find_method_by_name(String methodName) {
+        for (var classScope : scope.scopes) {
+            if (classScope instanceof ClassScope) {
+                for (var m : ((ClassScope) classScope).scopes) {
                     if (m instanceof MethodScope) {
                         if (((MethodScope) m).name.equals(methodName)) {
-                            methodScope = ((MethodScope) m);
-                            isMethodFind = true;
-                            break;
+                            return ((MethodScope) m);
                         }
                     }
                 }
             }
-
         }
 
-        if (isMethodFind) {
+        return null;
+    }
+
+    public void check_method_call_has_error(DustParser.Method_callContext ctx) {
+        String methodName = ctx.ID().getText();
+        int line = ctx.start.getLine();
+        MethodScope methodScope = find_method_by_name(methodName);
+
+        if (methodScope == null) {
+            errors.add(new Error("Method not Found", "Method " + methodName + " not found", line));
+        } else {
             String argList = ctx.args().getText();
-            ArrayList<String> args = new ArrayList<String>(Arrays.asList(argList.replaceAll("[()]", "").split(",")));
+            ArrayList<String> args = new ArrayList(Arrays.asList(argList.replaceAll("[()]", "").split(",")));
 
             if (methodScope.parametersLen != args.size()) {
                 errors.add(new Error("Number of parameter doesnt match", "Method " + methodName, line));
@@ -138,9 +133,6 @@ public class CodeAnalysis extends AnalyzerListener {
                     errors.add(new Error("Type of parameter doesnt match", "Method " + methodName, line));
                 }
             }
-
-        } else {
-            errors.add(new Error("Method not Found", "Method " + methodName + " not found", line));
         }
     }
 

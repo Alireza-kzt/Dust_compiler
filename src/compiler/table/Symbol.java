@@ -18,11 +18,15 @@ public class Symbol extends ISymbol {
         boolean is_float = Objects.equals(this.type, "float");
         boolean is_bool = Objects.equals(this.type, "bool");
         boolean is_builtin_type = is_int || is_String || is_float || is_bool;
-        this.is_defined = (is_builtin_type)? "True":"False";
+        this.is_defined = (is_builtin_type) ? "True" : "False";
     }
 
     public String getValue() {
         return field + "_" + name;
+    }
+
+    public String getSignature() {
+        return field + "_" + type + "_" + name;
     }
 
     String parentType() {
