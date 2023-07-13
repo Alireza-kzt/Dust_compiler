@@ -92,7 +92,8 @@ public class AnalyzerListener implements DustListener {
     public void enterArrayDec(DustParser.ArrayDecContext ctx) {
         String varName = ctx.ID().getText();
         String fieldType = ctx.TYPE() != null ? ctx.TYPE().getText() : ctx.CLASSNAME().getText();
-        Symbol symbol = new Symbol("Field", varName, fieldType);
+        String field = "Array," + ctx.INTEGER().toString() + "," + "Field";
+        Symbol symbol = new Symbol(field, varName, fieldType);
 
         // Add the symbol to the current scope
         scope.add(symbol);
