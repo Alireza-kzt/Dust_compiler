@@ -7,7 +7,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 public class CodeAnalysis extends AnalyzerListener {
     public ArrayList<Error> errors = new ArrayList<>();
     public HashMap<DustParser.Method_callContext, IScope> methodCalls = new HashMap<>();
@@ -194,7 +195,70 @@ public class CodeAnalysis extends AnalyzerListener {
 
     @Override
     public void enterAssignment(DustParser.AssignmentContext ctx) {
-        if (ctx.getText().contains("[")) {
+        HashMap<String, String> valid_variables = new HashMap<>();
+        ArrayList<String> valid_types = new ArrayList<>();
+
+        if (ctx.getText().contains("+") || ctx.getText().contains("-") || ctx.getText().contains("/") || ctx.getText().contains("*")){
+            System.out.println("im here " + ctx.getText());
+            IScope kos = scope;
+            while (!(kos instanceof GlobalScope)) {
+                for (var s : kos.scopes) {
+                    if (s instanceof Symbol) {
+                        System.out.println("---> " + ((Symbol) s).name + " = " + ((Symbol) s).type);
+                        valid_variables.put(((Symbol) s).name, ((Symbol) s).type);
+                    }
+                }
+                kos = kos.parent;
+            }
+
+            System.out.println("Valid variables are: ");
+            for ( Map.Entry<String, Integer> entry : imported_classes.entrySet()) {
+                System.out.println(entry.getKey() + " " + entry.getValue());
+                valid_types.add(entry.getValue().toString());
+            }
+
+            System.out.println();
+            String regex = "\\w+";
+
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(ctx.getText());
+
+            ArrayList<String> variables = new ArrayList<>();
+            while (matcher.find()) {
+                variables.add(matcher.group());
+            }
+
+            System.out.println("Variables are: ");
+            for (var x: variables) {
+                System.out.println(x);
+            }
+
+            for (var variable_name: variables) {
+                boolean exist = false;
+                String result = null;
+                boolean is_defining_variable = false;
+                for (var valid_variable_name: valid_variables.keySet()){
+                    result = variable_name;
+                    for ( var x: valid_variables.values()) {
+                        if (variable_name.startsWith(x)) {
+                            is_defining_variable = true;
+                            result = variable_name.substring(x.length());
+                            break;
+                        }
+                    }
+                    if (result.equals(valid_variable_name)) {
+                        System.out.println(variable_name + " Contains " + valid_variable_name + " so it is valid.");
+                        exist = true;
+                        break;
+                    }
+                }
+                if (!exist && !is_defining_variable){
+                    System.out.println(variable_name + " wasn't in valid variables.");
+                    errors.add(new Error("Variable not Found", result, ctx.start.getLine()));
+                }
+            }
+
+        } else if (ctx.getText().contains("[")) {
             IScope tempScope = scope;
             Symbol relatedArray = null;
             boolean arrayFound = false;
@@ -202,7 +266,7 @@ public class CodeAnalysis extends AnalyzerListener {
             while (!(tempScope instanceof GlobalScope)) {
                 for (var s : tempScope.scopes) {
                     if (s instanceof Symbol && ((Symbol) s).field.contains("Array")) {
-                        if (((Symbol) s).name.equals(getNameAndIndex(ctx.getText()))) {
+                        if (((Symbol) s).name.equals(getNameCtx(ctx.getText()))) {
                             relatedArray = (Symbol) s;
                             arrayFound = true;
                             break;
@@ -214,7 +278,7 @@ public class CodeAnalysis extends AnalyzerListener {
             }
 
             if (relatedArray == null) {
-                errors.add(new Error("Array not Found", "Array " + getNameAndIndex(ctx.getText()), ctx.start.getLine()));
+                errors.add(new Error("Array not Found", "Array " + getNameCtx(ctx.getText()), ctx.start.getLine()));
             } else {
 
                 int arrSize = Integer.parseInt(getSize(((Symbol) relatedArray).field.replace(",Field", "")));
@@ -255,7 +319,7 @@ public class CodeAnalysis extends AnalyzerListener {
         return text.substring(0, text.indexOf(','));
     }
 
-    public String getNameAndIndex(String ctxToString) {
+    public String getNameCtx(String ctxToString) {
         String name;
         if (ctxToString.contains(".")) {
             name = ctxToString.substring(ctxToString.indexOf(".") + 1, ctxToString.indexOf('['));
