@@ -1,8 +1,10 @@
 import Nothing
 import Nothing2
 import OneFunnyClass
+import Car
 
 class Human(Nothing, Nothing2){
+    int var
     Nose nose
     Hand[2] hands
     Leg[2] legs
@@ -24,7 +26,7 @@ class Human(Nothing, Nothing2){
     }
 
     def void eat(Food food, int c){
-        int calories += c
+        int calories = ((voice + x - ww) / e) * c
         while(self.isHungry) {
             Food newFood = Food()
             eat(newFood)
