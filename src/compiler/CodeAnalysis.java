@@ -200,15 +200,15 @@ public class CodeAnalysis extends AnalyzerListener {
 
         if (ctx.getText().contains("+") || ctx.getText().contains("-") || ctx.getText().contains("/") || ctx.getText().contains("*")){
             System.out.println("im here " + ctx.getText());
-            IScope kos = scope;
-            while (!(kos instanceof GlobalScope)) {
-                for (var s : kos.scopes) {
+            IScope current_scope = scope;
+            while (!(current_scope instanceof GlobalScope)) {
+                for (var s : current_scope.scopes) {
                     if (s instanceof Symbol) {
                         System.out.println("---> " + ((Symbol) s).name + " = " + ((Symbol) s).type);
                         valid_variables.put(((Symbol) s).name, ((Symbol) s).type);
                     }
                 }
-                kos = kos.parent;
+                current_scope = current_scope.parent;
             }
 
             System.out.println("Valid variables are: ");
