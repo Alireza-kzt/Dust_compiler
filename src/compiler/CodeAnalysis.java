@@ -7,7 +7,7 @@ import java.util.*;
 
 public class CodeAnalysis extends AnalyzerListener {
     public ArrayList<Error> errors = new ArrayList<>();
-    public ArrayList<DustParser.Method_callContext> methodCalls = new ArrayList<>();
+    public HashMap<DustParser.Method_callContext, IScope> methodCalls = new HashMap();
 
     public CodeAnalysis(GlobalScope globalScope) {
         super(globalScope);
@@ -16,7 +16,7 @@ public class CodeAnalysis extends AnalyzerListener {
     public void printErrors() {
         find_constructor_matching_error();
 
-        for (var call : methodCalls) check_method_call_has_error(call);
+        for (var call : methodCalls.keySet()) check_method_call_has_error(call, methodCalls.get(call));
 
 
         if (errors.isEmpty()) {
@@ -77,7 +77,7 @@ public class CodeAnalysis extends AnalyzerListener {
 
     @Override
     public void enterMethod_call(DustParser.Method_callContext ctx) {
-        methodCalls.add(ctx);
+        methodCalls.put(ctx, scope);
         super.enterMethod_call(ctx);
     }
 
@@ -97,7 +97,7 @@ public class CodeAnalysis extends AnalyzerListener {
         return null;
     }
 
-    public void check_method_call_has_error(DustParser.Method_callContext ctx) {
+    public void check_method_call_has_error(DustParser.Method_callContext ctx, IScope currentScope) {
         String methodName = ctx.ID().getText();
         int line = ctx.start.getLine();
         MethodScope methodScope = find_method_by_name(methodName);
@@ -112,58 +112,42 @@ public class CodeAnalysis extends AnalyzerListener {
                 errors.add(new Error("Number of parameter doesnt match", "Method " + methodName, line));
             } else {
                 boolean isAllParamMatch = true;
-                for (ISymbol param : methodScope.scopes) {
-                    for (var arg : args) {
-                        if (param instanceof Symbol) {
-                            if (!((Symbol) param).is_defined.equals("False")) {
-                                if (!typeOf(arg).isEmpty()) {
-                                    if (((Symbol) param).type.equals(typeOf(arg))) {
-                                        isAllParamMatch = false;
-                                        break;
-                                    }
+                for (int i = 0; i < methodScope.parametersLen; i++) {
+                    IScope tempScope = currentScope;
+                    Symbol relatedSymbol = null;
+                    boolean symbolFound = false;
+
+                    tempScope = currentScope;
+                    while (!(tempScope instanceof GlobalScope)) {
+                        for (var s : tempScope.scopes) {
+                            if (s instanceof Symbol) {
+                                if (((Symbol) s).name.equals(args.get(i))) {
+                                    relatedSymbol = (Symbol) s;
+                                    symbolFound = true;
+                                    break;
                                 }
                             }
                         }
+                        if(symbolFound) break;
+                        tempScope = tempScope.parent;
+                    }
+
+                    if (relatedSymbol == null) {
+                        errors.add(new Error("Element not Found", "Element " + args.get(i), line));
+                        break;
+                    } else {
+                        if (!((Symbol) methodScope.scopes.get(i)).type.equals(relatedSymbol.type)) {
+                            isAllParamMatch = false;
+                            break;
+                        }
                     }
                 }
+
                 if (!isAllParamMatch) {
-                    errors.add(new Error("Type of parameter doesnt match", "Method " + methodName, line));
+                    errors.add(new Error("Type or sequence of parameter doesnt match", "Method " + methodName, line));
                 }
             }
         }
-    }
-
-    private String typeOf(String arg) {
-        String type = "";
-
-        if (arg.contains("\"") || arg.contains("\'")) {
-            type = "string";
-        } else {
-
-            try {
-                Integer.parseInt(arg);
-                type = "int";
-            } catch (Exception e) {
-                type = "";
-            }
-
-            if (arg.contains(".")) {
-                try {
-                    Float.parseFloat(arg);
-                    type = "float";
-                } catch (Exception e) {
-                    type = "";
-                }
-            }
-
-            if (arg.equals("true") || arg.equals("false")) {
-                type = "bool";
-            }
-
-
-        }
-
-        return type;
     }
 
     public void find_constructor_matching_error() {
@@ -174,13 +158,75 @@ public class CodeAnalysis extends AnalyzerListener {
                     if (methosScope instanceof MethodScope) {
                         String methodScopeName = ((MethodScope) methosScope).name;
                         if (methodScopeName.toLowerCase().contains("constructor")) {
-                            if (!className.equals(methodScopeName.replace("constructor_", ""))) {
+                            if (!className.equals(methodScopeName.replace("Constructor_", ""))) {
                                 errors.add(new Error("Constructor not match", "Name of constructor method " + methodScopeName + " does not match with class " + className, ((MethodScope) methosScope).line));
                             }
                         }
                     }
                 }
             }
+    }
+
+    @Override
+    public void enterAssignment(DustParser.AssignmentContext ctx) {
+        if (ctx.getText().contains("[")) {
+            IScope tempScope = scope;
+            Symbol relatedArray = null;
+            boolean arrayFound = false;
+
+            while (!(tempScope instanceof GlobalScope)) {
+                for (var s : tempScope.scopes) {
+                    if (s instanceof Symbol && ((Symbol) s).field.contains("Array")) {
+                        if (((Symbol) s).name.equals(getNameAndIndex(ctx.getText()))) {
+                            relatedArray = (Symbol) s;
+                            arrayFound = true;
+                            break;
+                        }
+                    }
+                }
+                if (arrayFound) break;
+                tempScope = tempScope.parent;
+            }
+
+            if (relatedArray == null) {
+                errors.add(new Error("Array not Found", "Array " + getNameAndIndex(ctx.getText()), ctx.start.getLine()));
+            } else {
+
+                int arrSize = Integer.parseInt(getSize(((Symbol) relatedArray).field.replace(",Field", "")));
+                int ctxArraySize = Integer.parseInt(getSizebyCtx(ctx.getText()));
+
+                if (ctxArraySize > arrSize) {
+                    errors.add(new Error("Out of Range", "The element " + ctxArraySize + " not exist in array " + relatedArray.name, ctx.start.getLine()));
+                }
+            }
+        } else {
+                System.out.println(ctx.getText());
+                IScope tempScope = scope;
+                Symbol relatedSymbol = null;
+                boolean symbolFound = false;
+
+                while (!(tempScope instanceof GlobalScope)) {
+                    for (var s : tempScope.scopes) {
+                        if (s instanceof Symbol) {
+                            var name = ctx.getText().trim().split("[,\\+ ]");
+                            if (((Symbol) s).name.equals(name)) {
+                                relatedSymbol = (Symbol) s;
+                                symbolFound = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (symbolFound) break;
+                    tempScope = tempScope.parent;
+                }
+
+//            if(relatedSymbol == null) {
+//                errors.add(new Error("Element not Found", "Element " + args.get(i), line));
+//            }
+            }
+
+
+        super.enterAssignment(ctx);
     }
 
     public String getSize(String text) {
@@ -205,35 +251,5 @@ public class CodeAnalysis extends AnalyzerListener {
         return ctxToString.substring(ctxToString.indexOf("[") + 1, ctxToString.indexOf("]"));
     }
 
-    @Override
-    public void enterAssignment(DustParser.AssignmentContext ctx) {
-        if (ctx.getText().contains("[")) {
-            IScope tempScope = scope;
-            Symbol relatedArray = null;
-            boolean arrayFound = false;
 
-            while (!(tempScope instanceof GlobalScope)) {
-                for (var s : tempScope.scopes) {
-                    if (s instanceof Symbol && ((Symbol) s).field.contains("Array")) {
-                        if (((Symbol) s).name.equals(getNameAndIndex(ctx.getText()))) {
-                            relatedArray = (Symbol) s;
-                            arrayFound = true;
-                            break;
-                        }
-                    }
-                }
-                if (arrayFound) break;
-                tempScope = tempScope.parent;
-            }
-
-            int arrSize = Integer.parseInt(getSize(((Symbol) relatedArray).field.replace(",Field", "")));
-            int ctxArraySize = Integer.parseInt(getSizebyCtx(ctx.getText()));
-
-            if (ctxArraySize > arrSize) {
-                errors.add(new Error("Out of Range", "The element " + ctxArraySize + " not exist in array " + relatedArray.name, ctx.start.getLine()));
-            }
-        }
-
-        super.enterAssignment(ctx);
-    }
 }

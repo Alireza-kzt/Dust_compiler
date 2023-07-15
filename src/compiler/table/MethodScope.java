@@ -12,7 +12,7 @@ public class MethodScope extends IScope {
 
     @Override
     public Symbol add(Symbol symbol) {
-        if (symbol.field == "Param") {
+        if (symbol.field.toLowerCase().contains("param")) {
             parameters += "[name: " + symbol.name + ", type: " + symbol.type + ", index: " + parametersLen + "]";
             parametersLen++;
         }
