@@ -2,12 +2,17 @@ package compiler;
 
 import compiler.table.*;
 import gen.DustParser;
-
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 public class CodeAnalysis extends AnalyzerListener {
     public ArrayList<Error> errors = new ArrayList<>();
-    public HashMap<DustParser.Method_callContext, IScope> methodCalls = new HashMap();
+    public HashMap<DustParser.Method_callContext, IScope> methodCalls = new HashMap<>();
+
+    public HashMap<String, Integer> imported_classes = new HashMap<>();
 
     public CodeAnalysis(GlobalScope globalScope) {
         super(globalScope);
@@ -15,13 +20,16 @@ public class CodeAnalysis extends AnalyzerListener {
 
     public void printErrors() {
         find_constructor_matching_error();
+        check_imported_classes_are_defined();
 
-        for (var call : methodCalls.keySet()) check_method_call_has_error(call, methodCalls.get(call));
-
+        for (var call : methodCalls.keySet()) {
+            check_method_call_has_error(call, methodCalls.get(call));
+        }
 
         if (errors.isEmpty()) {
             System.out.println("Code Executed with 0 error.");
         } else {
+            errors.sort(Comparator.comparingInt(error -> error.line));
             for (Error error : errors) {
                 System.out.println(error);
             }
@@ -30,23 +38,7 @@ public class CodeAnalysis extends AnalyzerListener {
 
     @Override
     public void enterImportclass(DustParser.ImportclassContext ctx) {
-        String className = ctx.CLASSNAME().getText();
-        int classLine = ctx.start.getLine();
-        boolean isClassDef = false;
-
-        for (ISymbol s : scope.scopes) {
-            if (s instanceof ClassScope) {
-                if (((ClassScope) s).name.equals(className)) {
-                    isClassDef = true;
-                    break;
-                }
-
-            }
-        }
-
-        if (!isClassDef) {
-            errors.add(new Error("Class not defined", "Class " + className + " not defined", classLine));
-        }
+        imported_classes.put(ctx.getText().replace("import", ""), ctx.getStart().getLine());
 
         super.enterImportclass(ctx);
     }
@@ -106,7 +98,7 @@ public class CodeAnalysis extends AnalyzerListener {
             errors.add(new Error("Method not Found", "Method " + methodName + " not found", line));
         } else {
             String argList = ctx.args().getText();
-            ArrayList<String> args = new ArrayList(Arrays.asList(argList.replaceAll("[()]", "").split(",")));
+            ArrayList<String> args = new ArrayList<>(Arrays.asList(argList.replaceAll("[()]", "").split(",")));
 
             if (methodScope.parametersLen != args.size()) {
                 errors.add(new Error("Number of parameter doesnt match", "Method " + methodName, line));
@@ -117,7 +109,6 @@ public class CodeAnalysis extends AnalyzerListener {
                     Symbol relatedSymbol = null;
                     boolean symbolFound = false;
 
-                    tempScope = currentScope;
                     while (!(tempScope instanceof GlobalScope)) {
                         for (var s : tempScope.scopes) {
                             if (s instanceof Symbol) {
@@ -167,6 +158,40 @@ public class CodeAnalysis extends AnalyzerListener {
             }
     }
 
+    public void check_imported_classes_are_defined() {
+        for ( Map.Entry<String, Integer> entry : imported_classes.entrySet()) {
+            String wordToSearch = "class " + entry.getKey();
+            int error_line = entry.getValue();
+            String directoryPath = "/home/mohammad_bq/IdeaProjects/Dust_compiler6/sample";
+
+            File directory = new File (directoryPath);
+            File[] files = directory.listFiles((dir, name) -> name.endsWith(".txt"));
+
+            if (files == null) {
+                System.err.println("Error: the directory does not exist or is not a directory.");
+                return;
+            }
+
+            boolean imported_item_is_exist = false;
+            for (File file: files) {
+                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        if (line.contains(wordToSearch)) {
+                            imported_item_is_exist = true;
+                            break;
+                        }
+                    }
+                } catch (IOException e) {
+                    System.err.println("Error reading file: " + e.getMessage());
+                }
+            }
+            if (!imported_item_is_exist) {
+                errors.add(new Error("Class not defined", wordToSearch + " was not found in other files.", error_line));
+            }
+        }
+    }
+
     @Override
     public void enterAssignment(DustParser.AssignmentContext ctx) {
         if (ctx.getText().contains("[")) {
@@ -200,7 +225,6 @@ public class CodeAnalysis extends AnalyzerListener {
                 }
             }
         } else {
-                System.out.println(ctx.getText());
                 IScope tempScope = scope;
                 Symbol relatedSymbol = null;
                 boolean symbolFound = false;
@@ -209,14 +233,8 @@ public class CodeAnalysis extends AnalyzerListener {
                     for (var s : tempScope.scopes) {
                         if (s instanceof Symbol) {
                             var name = ctx.getText().trim().split("[,\\+ ]");
-                            if (((Symbol) s).name.equals(name)) {
-                                relatedSymbol = (Symbol) s;
-                                symbolFound = true;
-                                break;
-                            }
                         }
                     }
-                    if (symbolFound) break;
                     tempScope = tempScope.parent;
                 }
 
